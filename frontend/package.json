@@ -1,11 +1,24 @@
 {
-  "name": "ocultar-web",
-  "module": "index.ts",
+  "name": "ocultar-frontend",
+  "private": true,
+  "version": "0.0.0",
   "type": "module",
-  "devDependencies": {
-    "@types/bun": "latest"
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
   },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "daisyui": "^4.12.13",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.8"
+  },
+  "dependencies": {
+    "@types/alpinejs": "^3.13.10",
+    "alpinejs": "^3.14.3"
   }
 }
