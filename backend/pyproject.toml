@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "ocultar-backend"
+version = "0.1.0"
+description = ""
+authors = ["grittypuffy <grittypuffy@riseup.net>"]
+readme = "README.md"
+packages = [{include = "ocultar_backend", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
