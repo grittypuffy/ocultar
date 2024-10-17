@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['/home/matt/projects/hackathon/20241016--startup-challenge-stanford/ocultar/desktop/../backend/src/main.py'],
+    ['../backend/src/main.py'],
     pathex=[],
     binaries=[],
     datas=[],

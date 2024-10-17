@@ -25,3 +25,4 @@ dist-ssr
 
 # Intermediaries
 binaries/
+api.spec
