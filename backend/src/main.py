@@ -16,7 +16,6 @@ import img2pdf
 
 from PIL import Image
 
-
 image_redactor_engine = ImageRedactorEngine()
 analyzer = AnalyzerEngine()
 anonymizer = AnonymizerEngine()
