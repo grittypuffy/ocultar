@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && poetry run python src-python/pyinstaller.py && vite build",
+    "poetry:deps": "poetry lock --no-update && poetry install",
+    "poetry:install": "poetry run python src-python/pyinstaller.py",
+    "poetry:build": "bun run poetry:deps && bun run poetry:install",
+    "build": "tsc && bun run poetry:build && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
     "pretauri": "poetry run python src-python/pyinstaller.py"

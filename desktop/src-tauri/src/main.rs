@@ -1,19 +1,19 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-/*fn main() {
-    desktop_lib::run()
-}*/
+
 use std::process::Command as StdCommand;
-use std::sync::Mutex;
-use tauri::api::process::{Command, CommandChild, CommandEvent};
-use tauri::{Manager, State, WindowEvent};
+use std::sync::{Arc, Mutex};
+use tauri::{AppHandle, Manager, State, WindowEvent};
+use tauri_plugin_shell::process::{CommandChild, CommandEvent};
+
+use tauri_plugin_shell::ShellExt;
 
 struct APIManagerState {
-    child: Mutex<Option<CommandChild>>,
+    child: Arc<Mutex<Option<CommandChild>>>,
 }
 
 #[tauri::command]
-async fn start_server(state: State<'_, APIManagerState>) -> Result<String, String> {
+async fn start_server(state: Arc<State<'_, APIManagerState>>, app_handle: AppHandle) -> Result<String, String> {
     let mut child_lock = state
         .child
         .lock()
@@ -26,7 +26,7 @@ async fn start_server(state: State<'_, APIManagerState>) -> Result<String, Strin
 
     println!("Attempting to start API server...");
 
-    let (mut rx, child) = Command::new_sidecar("api")
+    let (mut rx, child) = app_handle.shell().sidecar("api")
         .expect("failed to create `api` binary command")
         .spawn()
         .map_err(|e| format!("Failed to spawn API server: {}", e))?;
@@ -37,9 +37,9 @@ async fn start_server(state: State<'_, APIManagerState>) -> Result<String, Strin
         println!("Starting to listen for API server events");
         while let Some(event) = rx.recv().await {
             match event {
-                CommandEvent::Stdout(line) => println!("API: {}", line),
-                CommandEvent::Stderr(line) => eprintln!("API Error: {}", line),
-                CommandEvent::Error(error) => eprintln!("API Process Error: {}", error),
+                CommandEvent::Stdout(line) => print!("API: {}", String::from_utf8_lossy(line.as_ref())),
+                CommandEvent::Stderr(line) => eprint!("API Info: {}", String::from_utf8_lossy(line.as_ref())),
+                CommandEvent::Error(error) => eprint!("API Process Error: {}", error),
                 CommandEvent::Terminated(status) => {
                     println!("API Process Terminated with status: {:?}", status)
                 }
@@ -53,6 +53,7 @@ async fn start_server(state: State<'_, APIManagerState>) -> Result<String, Strin
     println!("API server started successfully");
     Ok("API server started successfully".into())
 }
+
 
 #[tauri::command]
 async fn stop_server(state: State<'_, APIManagerState>) -> Result<String, String> {
@@ -116,22 +117,24 @@ fn greet(name: &str) -> String {
 fn main() {
     tauri::Builder::default()
         .manage(APIManagerState {
-            child: Mutex::new(None),
+            child: Arc::new(Mutex::new(None))
         })
-        .setup(|app| {
-            let app_handle = app.handle();
+        .setup(move |app| {
+            //let app_handle = app.handle();
+            //let state = Arc::new(app_handle.state::<APIManagerState>());
+            let app_handle = app.app_handle().clone();
             tauri::async_runtime::spawn(async move {
-                let state = app_handle.state::<APIManagerState>();
-                match start_server(state).await {
+                let state = Arc::new(app_handle.state::<APIManagerState>());    
+                match start_server(state, app_handle.clone()).await {
                     Ok(msg) => println!("{}", msg),
                     Err(e) => eprintln!("Failed to start API server: {}", e),
                 }
             });
             Ok(())
         })
-        .on_window_event(|event| {
-            if let WindowEvent::Destroyed = event.event() {
-                let state = event.window().state::<APIManagerState>();
+        .on_window_event(|window, event| {
+            if let WindowEvent::Destroyed = event {
+                let state = window.state::<APIManagerState>();
                 tauri::async_runtime::block_on(async {
                     match stop_server(state).await {
                         Ok(msg) => println!("{}", msg),
@@ -140,7 +143,8 @@ fn main() {
                 });
             }
         })
-        .invoke_handler(tauri::generate_handler![greet, start_server, stop_server])
+        .invoke_handler(tauri::generate_handler![greet, stop_server])
+        .plugin(tauri_plugin_shell::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
