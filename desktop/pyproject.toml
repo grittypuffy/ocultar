@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "ocultar-desktop"
+version = "0.1.0"
+description = "Desktop application for Ocultar"
+authors = ["grittypuffy <grittypuffy@riseup.net>"]
+license = "SPDX:AGPL"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pyinstaller = {version = "^6.11.0", python = ">=3.12,<3.14"}
+colorama = "^0.4.6"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
