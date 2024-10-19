@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port '3000' --host '0.0.0.0'",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && mkdir -p ./dist/assets/fonts && cp ./dist/assets/*.ttf ./dist/assets/fonts",
     "preview": "vite preview --host '0.0.0.0' --port '3000'"
   },
+
   "devDependencies": {
     "autoprefixer": "^10.4.20",
     "daisyui": "^4.12.13",
@@ -19,6 +20,7 @@
   },
   "dependencies": {
     "@types/alpinejs": "^3.13.10",
-    "alpinejs": "^3.14.3"
+    "alpinejs": "^3.14.3",
+    "alpinejs-axios": "^1.0.7"
   }
 }

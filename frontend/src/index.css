@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    html {
+        font-family: "Montserrat", system-ui, sans-serif;
+        font-weight: 400;
+    }
+    @font-face {
+        font-family: "Oswald";
+        src: url("../public/assets/fonts/oswald.ttf") format("truetype");
+    }
+
+    @font-face {
+        font-family: "Montserrat";
+        src: url("../public/assets/fonts/montserrat.ttf") format("truetype");
+    }
+
+    @font-face {
+        font-family: "Source Sans";
+        src: url("../public/assets/fonts/source-sans-3.ttf") format("truetype");
+    }
+}

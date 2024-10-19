@@ -7,7 +7,6 @@ import PyInstaller.__main__
 from colorama import Fore, Style, init
 from PyInstaller.utils.hooks import collect_data_files
 
-datas = collect_data_files('/home/matt/.cache/pypoetry/virtualenvs/ocultar-desktop-sidecar-qhcLvNKr-py3.12/lib/python3.12/site-packages/en_core_web_lg/en_core_web_lg-3.8.0/')
 init()
 
 logging.basicConfig(format="%(message)s")
@@ -22,7 +21,7 @@ def install():
     colored_log("Build Fast Api Binary...", Fore.CYAN)
     path_to_main = str(Path("../backend/src/main.py").absolute())
     PyInstaller.__main__.run(
-        [path_to_main, "--onefile", "--name=api", "--log-level=INFO"]
+        [path_to_main, "--onefile", "--name=api", "--noupx", "--log-level=INFO"]
     )
     post_install()
 
