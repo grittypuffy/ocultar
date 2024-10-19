@@ -2,6 +2,8 @@ FROM python:3-slim-buster
 
 ENV VIRTUAL_ENV=backend
 
+RUN /var/tmp/ocultar/
+
 RUN python3 -m venv $VIRTUAL_ENV
 
 ENV PATH="/$VIRTUAL_ENV/bin:$PATH"

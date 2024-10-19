@@ -21,6 +21,8 @@ img2pdf = "^0.5.1"
 pillow = "^11.0.0"
 python-multipart = "^0.0.12"
 spacy = {version = "^3.8.2", extras = ["en_core_web_lg"]}
+pytesseract = "^0.3.13"
+opencv-python = "^4.10.0.84"
 
 [build-system]
 requires = ["poetry-core"]
