@@ -6,18 +6,18 @@ Ocultar is an offline-first software for redaction of personal information and r
 
 # Table of Contents
 
-1. [Why]("#why")
-2. [Features]("#features")
-    - [Offline usage]("#offline-usage")
-    - [Web interface]("#web-interface")
-    - [Self-hosting]("#self-hosting")
-    - [Multi-lingual redaction]("#multi-lingual-redaction")
-    - [Batch processing]("#batch-processing")
-    - [Customized redaction]("#customized-redaction")
-    - [Integrated metadata removal]("#integrated-metadata-removal")
-3. [Philosophy]("#philosophy")
-4. [Technologies used]("#technologies-used")
-5. [Development]("#development")
+1. [Why](#why)
+2. [Features](#features)
+    - [Offline usage](#offline-usage)
+    - [Web interface](#web-interface)
+    - [Self-hosting](#self-hosting)
+    - [Multi-lingual redaction](#multi-lingual-redaction)
+    - [Batch processing](#batch-processing)
+    - [Customized redaction]("#customized-redaction)
+    - [Integrated metadata removal]("#integrated-metadata-removal)
+3. [Philosophy](#philosophy)
+4. [Technologies used](#technologies-used)
+5. [Development](#development)
 
 ## Why?
 
