@@ -234,6 +234,8 @@ async def upload(
             RedactFile.redact_image(file, redacted_file_path, redaction_color=redaction_color, sensitivity=options.sensitivity)
 
         case "application/pdf":
+            def file_name(hashed_directory):
+                return hashed_directory
             hashed_directory = Path(os.path.join(STORAGE_PATH, redacted_file_name_hash)).absolute()
             try:
                 os.mkdir(hashed_directory)
@@ -241,10 +243,11 @@ async def upload(
                 shutil.rmtree(hashed_directory)
                 os.mkdir(hashed_directory)
 
-            images = convert_from_bytes(pdf_file=file.file.read(), output_folder=hashed_directory)
+            images = convert_from_bytes(pdf_file=file.file.read(), output_folder=hashed_directory, output_file=file_name(redacted_file_name_hash))
             for (index, image) in enumerate(images):
-                image_path = Path(os.path.join(hashed_directory, f"{redacted_file_name_hash}-{index}.jpg"))
+                image_path = Path(os.path.join(hashed_directory, f"{redacted_file_name_hash}0001-{index + 1}.ppm"))
                 original_image = Image.open(image_path)
+                image_path = Path(os.path.join(hashed_directory, f"{redacted_file_name_hash}-{index + 1}.jpg"))
                 original_image.save(image_path)
                 preprocessed_image = cv2.imread(image_path)
 
@@ -258,9 +261,9 @@ async def upload(
 
                 text = pytesseract.image_to_string(Image.open(image_path))
                 language = RedactFile.detect_text_language(text=text)
-                os.remove(redacted_file_path)
+                os.remove(Path(os.path.join(hashed_directory, f"{redacted_file_name_hash}-{index + 1}.jpg")))
 
-                entities = ENTITIES.get(sensitivity)
+                entities = ENTITIES.get(options.sensitivity)
                 image_redactor_engine.redact(original_image, redaction_color, language=language, score_threshold=entities.get("score_threshold"), entities=entities.get("entities")).convert("RGB").save((image_path).absolute(), "JPEG")
 
             for intermediate_file in os.listdir(hashed_directory):
