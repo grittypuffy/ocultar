@@ -2,12 +2,15 @@ import binascii
 import os
 import hashlib
 import io
+import time
 import shutil
-import pip
+import enum
 
-from fastapi import FastAPI, UploadFile
+from typing import Annotated
+from fastapi import FastAPI, UploadFile, Depends, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 import uvicorn
 
 import pytesseract
@@ -39,6 +42,17 @@ from pdf2image import convert_from_bytes
 import img2pdf
 
 from pathlib import Path
+
+
+class Sensitivity(enum.Enum):
+    LOW = 0
+    MEDIUM = 1
+    HIGH = 2
+
+class Options (BaseModel):
+    remove_metadata: bool = True
+    sensitivity: Sensitivity = Sensitivity.HIGH
+    redaction_color: tuple[int, int, int] = (0, 0, 0)
 
 analyzer = AnalyzerEngine(supported_languages=["en", "es"])
 anonymizer = AnonymizerEngine()
@@ -84,7 +98,6 @@ except FileExistsError:
 
 detector = _setup_lang_detection()
 
-import time
 
 class RedactFile:
     def get_redacted_filename(filename: str, extension: str | None, or_extension: str) -> str:
@@ -96,11 +109,12 @@ class RedactFile:
         hash_object.update(f"{filename}{time.time_ns()}".encode("utf-8"))
         return hash_object.hexdigest()
 
-    def anonymize_text(file: UploadFile):
+    def anonymize_text(file: UploadFile, sensitivity: Sensitivity):
         contents = bytes.decode(file.file.read(), encoding="utf-8")
         language = this.detect_text_language(contents)
         if language is not None and language in SUPPORTED_LANGUAGES:
-            analyzer_results = analyzer.anonymize(text=contents, language=language)
+            entities = ENTITIES.get(sensitivity)
+            analyzer_results = analyzer.analyze(text=contents, language=language, score_threshold=entities.get("score_threshold"), entities=entities.get("entities"))
             anonymized_content = anonymizer.anonymize(text=contents, analyzer_results=analyzer_results)
         return anonymized_content
 
@@ -113,7 +127,7 @@ class RedactFile:
         with open(redacted_file_path, "w") as redacted_text_file:
             redacted_text_file.write(anonymized_results.text)
 
-    def redact_image(file: UploadFile, redacted_file_path: str) -> str:
+    def redact_image(file: UploadFile, redacted_file_path: str, redaction_color: tuple[int, int, int] ,sensitivity: Sensitivity) -> str:
         content = io.BytesIO(file.file.read())
         original_image = Image.open(content)
         print(redacted_file_path)
@@ -130,8 +144,8 @@ class RedactFile:
         text = pytesseract.image_to_string(Image.open(redacted_file_path))
         language = RedactFile.detect_text_language(text=text)
         os.remove(redacted_file_path)
-
-        redacted_image = image_redactor_engine.redact(original_image, (0, 0, 0), language=language)
+        entities = ENTITIES.get(sensitivity)
+        redacted_image = image_redactor_engine.redact(original_image, (0, 0, 0), language=language, score_threshold=entities.get("score_threshold"), entities=entities.get("entities"))
         redacted_image.save(Path(redacted_file_path).absolute())
 
     def send_file(original_file_name: str, redacted_file_path: str, media_type: str) -> FileResponse:
@@ -154,8 +168,53 @@ class RedactFile:
 SUPPORTED_EXTENSIONS = ("jpeg", "jpg", "png", "gif", "pdf", "txt")
 SUPPORTED_LANGUAGES = ("en", "es")
 
+
+ENTITIES = {
+    Sensitivity.HIGH: {
+        "score_threshold": None,
+        "entities": None
+    },
+
+    Sensitivity.MEDIUM: {
+        "score_threshold": 0.4,
+        "entities": [
+            "CREDIT_CARD",
+            "CRYPTO",
+            "EMAIL_ADDRESS",
+            "IBAN_CODE",
+            "LOCATION",
+            "PERSON",
+            "PHONE_NUMBER",
+            "MEDICAL_LICENSE",
+            "IN_PAN",
+            "IN_AADHAAR",
+            "IN_VEHICLE_REGISTRATION",
+            "IN_VOTER",
+            "IN_PASSPORT"
+        ]
+    },
+
+    Sensitivity.LOW: {
+        "score_threshold": 0.7,
+        "entities": [
+            "CREDIT_CARD",
+            "CRYPTO",
+            "IBAN_CODE",
+            "MEDICAL_LICENSE",
+            "IN_PAN",
+            "IN_AADHAAR",
+            "IN_VEHICLE_REGISTRATION",
+            "IN_VOTER",
+            "IN_PASSPORT"
+        ]
+    }
+}
+
 @app.post("/upload")
-async def upload(file: UploadFile) -> FileResponse:
+async def upload(
+    file: Annotated[UploadFile, File()],
+    options: Options = Depends()
+) -> FileResponse:
     file_name_split = file.filename.split(".")
     original_filename = "".join(file_name_split[:-1])
     extension = file_name_split[-1] if file_name_split[-1] in SUPPORTED_EXTENSIONS else None
@@ -165,13 +224,11 @@ async def upload(file: UploadFile) -> FileResponse:
     redacted_file_path = Path(os.path.join(STORAGE_PATH, redacted_file_name)).absolute()
     match file.content_type:
         case "text/plain":
-            anonymized_text = RedactFile.anonymize_text(file)
+            anonymized_text = RedactFile.anonymize_text(file, option.sensitivity)
             RedactFile.write_text(anonymized_results.text, redacted_file_path)
-            return RedactFile.send_file(original_filename, redacted_file_path, media_type=file.content_type)
 
         case "image/jpeg" | "image/png" | "image/gif" | "image/svg+xml":
-            RedactFile.redact_image(file, redacted_file_path)
-            return RedactFile.send_file(original_filename, redacted_file_path, media_type=file.content_type)
+            RedactFile.redact_image(file, redacted_file_path, options.redaction_color, options.sensitivity)
 
         case "application/pdf":
             hashed_directory = Path(os.path.join(STORAGE_PATH, redacted_file_name_hash)).absolute()
@@ -187,7 +244,7 @@ async def upload(file: UploadFile) -> FileResponse:
                 original_image = Image.open(image_path)
                 original_image.save(image_path)
                 preprocessed_image = cv2.imread(image_path)
-                
+
                 #convert to grayscale image
                 gray=cv2.cvtColor(preprocessed_image, cv2.COLOR_BGR2GRAY)
                 
@@ -200,7 +257,8 @@ async def upload(file: UploadFile) -> FileResponse:
                 language = RedactFile.detect_text_language(text=text)
                 os.remove(redacted_file_path)
 
-                image_redactor_engine.redact(original_image, (0, 0, 0), language=language).convert("RGB").save((image_path).absolute(), "JPEG")
+                entities = ENTITIES.get(sensitivity)
+                image_redactor_engine.redact(original_image, options.redaction_color, language=language, score_threshold=entities.get("score_threshold"), entities=entities.get("entities")).convert("RGB").save((image_path).absolute(), "JPEG")
 
             for intermediate_file in os.listdir(hashed_directory):
                 if intermediate_file.endswith(".ppm"):
@@ -211,7 +269,7 @@ async def upload(file: UploadFile) -> FileResponse:
                 redacted_file.write(img2pdf.convert(images))
 
             shutil.rmtree(hashed_directory)
-            return RedactFile.send_file(original_filename, redacted_file_path, media_type=file.content_type)
+    return RedactFile.send_file(original_filename, redacted_file_path, media_type=file.content_type)
 
 
 if __name__ == "__main__":
