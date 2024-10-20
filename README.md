@@ -1,23 +1,23 @@
 # Ocultar
 
-[![Ocultar Logo](./assets/logo-full.svg)](https://ocultar.vercel.app/)
+<a href="https://ocultar.vercel.app"><img src="./assets/logo-full.svg" style="background-color: #ffffff; padding: 15px" alt="Ocultar Logo"></a>
 
 Ocultar is an offline-first software for redaction of personal information and removal of metadata from digital files for enhanced privacy and prevent unintended disclosure of sensitive information.
 
 # Table of Contents
 
-1. Why
-2. Features
-    - Offline usage
-    - Web interface
-    - Self-hosting
-    - Multi-lingual redaction
-    - Batch processing
-    - Customized redaction
-    - Integrated metadata removal
-3. Philosophy
-4. Technologies used
-5. Development
+1. [Why]("#why")
+2. [Features]("#features")
+    - [Offline usage]("#offline-usage")
+    - [Web interface]("#web-interface")
+    - [Self-hosting]("#self-hosting")
+    - [Multi-lingual redaction]("#multi-lingual-redaction")
+    - [Batch processing]("#batch-processing")
+    - [Customized redaction]("#customized-redaction")
+    - [Integrated metadata removal]("#integrated-metadata-removal")
+3. [Philosophy]("#philosophy")
+4. [Technologies used]("#technologies-used")
+5. [Development]("#development")
 
 ## Why?
 
@@ -33,7 +33,7 @@ Reduction of impact of data breaches and unintended transmission of personal inf
 
 ## Features
 
-### Offline usage:
+### Offline usage
 
 Ocultar can be used offline by desktop application that bundles the needed API for processing files on their local system. This eliminates reliance on cloud services for processing of information which may potentially infringe on privacy.
 
@@ -54,7 +54,7 @@ Currently, we support processing of the following file formats:
 - Images: PNG, JPEG, SVG, GIF
 - PDF
 
-### Web interface:
+### Web interface
 
 Some people wish to use web application rather than installing the desktop application. We provide a flagship instance that allows users to upload files. Useful for people who are not able to self-host or use desktop application.
 
