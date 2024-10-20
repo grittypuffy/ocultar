@@ -23,6 +23,7 @@ python-multipart = "^0.0.12"
 spacy = {version = "^3.8.2", extras = ["en_core_web_lg"]}
 pytesseract = "^0.3.13"
 opencv-python = "^4.10.0.84"
+mat2 = "^0.13.4"
 
 [build-system]
 requires = ["poetry-core"]

@@ -1417,6 +1417,22 @@ files = [
 ]
 
 [[package]]
+name = "mat2"
+version = "0.13.4"
+description = "A handy tool to trash your metadata"
+optional = false
+python-versions = ">=3.5.0"
+files = [
+    {file = "mat2-0.13.4-py3-none-any.whl", hash = "sha256:c66062ea58af49a1d0cf2f28b678ae5b7027d3aa683f4fd6da6e4f351e3a892e"},
+    {file = "mat2-0.13.4.tar.gz", hash = "sha256:744aeee924c9898a397fe930593b803c540389bf39cd24553b99a89acc2f5901"},
+]
+
+[package.dependencies]
+mutagen = "*"
+pycairo = "*"
+PyGObject = "*"
+
+[[package]]
 name = "matplotlib"
 version = "3.9.2"
 description = "Python plotting package"
@@ -1551,6 +1567,17 @@ files = [
     {file = "murmurhash-1.0.10-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d75840212bf75eb1352c946c3cf1622dacddd6d6bdda34368237d1eb3568f23a"},
     {file = "murmurhash-1.0.10-cp39-cp39-win_amd64.whl", hash = "sha256:a4209962b9f85de397c3203ea4b3a554da01ae9fd220fdab38757d4e9eba8d1a"},
     {file = "murmurhash-1.0.10.tar.gz", hash = "sha256:5282aab1317804c6ebd6dd7f69f15ba9075aee671c44a34be2bde0f1b11ef88a"},
+]
+
+[[package]]
+name = "mutagen"
+version = "1.47.0"
+description = "read and write audio tags for many formats"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mutagen-1.47.0-py3-none-any.whl", hash = "sha256:edd96f50c5907a9539d8e5bba7245f62c9f520aef333d13392a79a4f70aca719"},
+    {file = "mutagen-1.47.0.tar.gz", hash = "sha256:719fadef0a978c31b4cf3c956261b3c58b6948b32023078a2117b1de09f0fc99"},
 ]
 
 [[package]]
@@ -1953,6 +1980,26 @@ python-gdcm = ">=3.0.24.1"
 server = ["flask (>=1.1)"]
 
 [[package]]
+name = "pycairo"
+version = "1.27.0"
+description = "Python interface for cairo"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "pycairo-1.27.0-cp310-cp310-win32.whl", hash = "sha256:e20f431244634cf244ab6b4c3a2e540e65746eed1324573cf291981c3e65fc05"},
+    {file = "pycairo-1.27.0-cp310-cp310-win_amd64.whl", hash = "sha256:03bf570e3919901572987bc69237b648fe0de242439980be3e606b396e3318c9"},
+    {file = "pycairo-1.27.0-cp311-cp311-win32.whl", hash = "sha256:9a9b79f92a434dae65c34c830bb9abdbd92654195e73d52663cbe45af1ad14b2"},
+    {file = "pycairo-1.27.0-cp311-cp311-win_amd64.whl", hash = "sha256:d40a6d80b15dacb3672dc454df4bc4ab3988c6b3f36353b24a255dc59a1c8aea"},
+    {file = "pycairo-1.27.0-cp312-cp312-win32.whl", hash = "sha256:e2239b9bb6c05edae5f3be97128e85147a155465e644f4d98ea0ceac7afc04ee"},
+    {file = "pycairo-1.27.0-cp312-cp312-win_amd64.whl", hash = "sha256:27cb4d3a80e3b9990af552818515a8e466e0317063a6e61585533f1a86f1b7d5"},
+    {file = "pycairo-1.27.0-cp313-cp313-win32.whl", hash = "sha256:01505c138a313df2469f812405963532fc2511fb9bca9bdc8e0ab94c55d1ced8"},
+    {file = "pycairo-1.27.0-cp313-cp313-win_amd64.whl", hash = "sha256:b0349d744c068b6644ae23da6ada111c8a8a7e323b56cbce3707cba5bdb474cc"},
+    {file = "pycairo-1.27.0-cp39-cp39-win32.whl", hash = "sha256:f9ca8430751f1fdcd3f072377560c9e15608b9a42d61375469db853566993c9b"},
+    {file = "pycairo-1.27.0-cp39-cp39-win_amd64.whl", hash = "sha256:1b1321652a6e27c4de3069709b1cae22aed2707fd8c5e889c04a95669228af2a"},
+    {file = "pycairo-1.27.0.tar.gz", hash = "sha256:5cb21e7a00a2afcafea7f14390235be33497a2cce53a98a19389492a60628430"},
+]
+
+[[package]]
 name = "pycryptodome"
 version = "3.21.0"
 description = "Cryptographic library for Python"
@@ -2148,6 +2195,19 @@ files = [
 
 [package.extras]
 windows-terminal = ["colorama (>=0.4.6)"]
+
+[[package]]
+name = "pygobject"
+version = "3.50.0"
+description = "Python bindings for GObject Introspection"
+optional = false
+python-versions = "<4.0,>=3.9"
+files = [
+    {file = "pygobject-3.50.0.tar.gz", hash = "sha256:4500ad3dbf331773d8dedf7212544c999a76fc96b63a91b3dcac1e5925a1d103"},
+]
+
+[package.dependencies]
+pycairo = ">=1.16"
 
 [[package]]
 name = "pyinstaller"
@@ -3363,4 +3423,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "f10177e3ebb648649ad396eb88cf99898a38c4ac2213c2732c46c4323d302053"
+content-hash = "7ee135250820713ec2e1fb5a3a4406168f7a3c8cd9ed4e4e7a48c8a1e2a030ff"
