@@ -4,13 +4,245 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/assets/logo/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css"
+    />
+    <link rel="stylesheet" href="./src/index.css" />
+    <script src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script
+      defer
+      src="https://unpkg.com/alpinejs-axios@latest/dist/api.min.js"
+    ></script>
+    <script>
+      function formatFileSize(bytesSize) {
+        if (bytesSize == 0) return "0 B";
+        var k = 1000,
+          dm = 2,
+          sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
+          i = Math.floor(Math.log(bytesSize) / Math.log(k));
+        return (
+          parseFloat((bytesSize / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i]
+        );
+      }
+
+      async function uploadFiles(
+        redaction_color,
+        sensitivity,
+        remove_metadata,
+        files
+      ) {
+        const toUpload = document.getElementById("toUpload");
+        toUpload.remove();
+        const redactedFiles = "";
+        //class="flex flex-row items-center space-x-2" id="redactedFiles"
+        const uploadFiles = document.getElementById("files");
+        const progressContainer = document.getElementById("progressContainer");
+        const filesUpload = files;
+        if (files.length === 0) {
+          alert("Please select at least one file.");
+          return;
+        }
+        redaction_color = redaction_color ? redaction_color : "#000000";
+        for (let i = 0; i < filesUpload.length; i++) {
+          await uploadFile(
+            filesUpload[i],
+            redaction_color,
+            sensitivity,
+            remove_metadata,
+            filesUpload[i].mimetype
+          );
+        }
+
+        async function uploadFile(
+          file,
+          redaction_color,
+          sensitivity,
+          remove_metadata,
+          mime
+        ) {
+          const responseFiles = document.getElementById("responseFiles");
+          const url = "http://0.0.0.0:8000/upload"; // Replace with your API endpoint
+          const formData = new FormData();
+          formData.append("file", file);
+          const mimetype = file.mimetype;
+          const fileName = file.filename;
+          const filesize = file.filesize;
+          const options = {
+            method: "POST",
+            headers: {
+              "Access-Control-Allow-Origin": "*",
+              "Access-Control-Allow-Credentials": true,
+            },
+          };
+          options.body = formData;
+          const urlFetch = `http://localhost:8000/upload?redaction_color=${redaction_color.replace(
+            "#",
+            ""
+          )}&sensitivity=${sensitivity}&remove_metadata=${remove_metadata}`;
+          await fetch(urlFetch, options)
+            .then((response) => response.blob())
+            .then((blob) => {
+              let redactedFile = new File([blob], file.name, {
+                type: mimetype,
+              });
+              let filesizeFinal = redactedFile.filesize
+              const redactedFileElement = document.getElementById("redactedFiles");
+              const url = URL.createObjectURL(redactedFile);
+              const fileRead = () => {
+                let fileReader = null,
+                  isCancel = false;
+                if (redactedFile) {
+                  fileReader = new FileReader();
+                  fileReader.onload = (e) => {
+                    const { result } = e.target;
+                    if (result && !isCancel) {
+                    }
+                  };
+                  fileReader.readAsDataURL(redactedFile);
+                  let link = document.createElement("a");
+                  redactedFileElement.appendChild(link);
+                  const boilerplate = `<div class="flex flex-row items-center space-x-4 space-y-4 rounded-3xl p-6 text-2xl mt-4 w-full">`;
+                  const ext = file.name.split(".").pop()
+                  switch (ext) {
+                    case "txt": {
+                      link.innerHTML = `
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-text"
+                      >
+                        <path d="M17 6.1H3" />
+                        <path d="M21 12.1H3" />
+                        <path d="M15.1 18H3" />
+                      </svg>`;
+                    }
+                    case "pdf": {
+                      link.innerHTML = `
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="red"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-file-text"
+                      >
+                        <path
+                          d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
+                        />
+                        <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                        <path d="M10 9H8" />
+                        <path d="M16 13H8" />
+                        <path d="M16 17H8" />
+                      </svg>`;
+                    }
+                    case "png" || "jpg": {
+                      link.innerHTML = `<svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="purple"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-image"
+                      >
+                        <rect
+                          width="18"
+                          height="18"
+                          x="3"
+                          y="3"
+                          rx="2"
+                          ry="2"
+                        />
+                        <circle cx="9" cy="9" r="2" />
+                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                      </svg>`;
+                    }
+                  }
+                  const fileInfo = `
+                    <span
+                      class="font-medium text-gray-900"
+                    >${file.name}</span>
+                    <span class="ml-40 flex flex-row space-x-2  btn bg-sky-300"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> Download</span>
+                  </div>
+                  `;
+                  link.href = url;
+                  link.download = file.name;
+                  link.innerHTML = boilerplate + link.innerHTML + fileInfo;
+                  link.style.visibility = "visible";
+                  link.download = file.name;// Specify filename and extension
+                  redactedFileElement.appendChild(link);
+                  const downloadFile = () => {
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = file.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    const link = document.createElement("a");
+                    link.href = blobUrl;
+                  };
+                  //downloadFile();
+                }
+              };
+              fileRead();
+            })
+            .catch((error) => {
+              console.error(`Error uploading file ${file.name}:`, error);
+            });
+          /*const response = await axios
+            .post(url, formData, {
+              params: queryParams,
+              headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": true,
+                "Content-Type": "multipart/form-data",
+              },
+              response: "blob",
+              onUploadProgress: (progressEvent) => {
+                const percentCompleted = Math.round(
+                  (progressEvent.loaded * 100) / progressEvent.total
+                );
+                updateProgressBar(file.name, percentCompleted);
+              },
+            })*/
+        }
+        function updateProgressBar(fileName, percentCompleted) {
+          console.log(percentCompleted);
+        }
+      }
+    </script>
     <title>Ocultar</title>
   </head>
 
   <body>
-    <div id="app" class="flex items-center w-full flex-col align-middle">
+    <div
+      id="app"
+      class="flex items-center w-full flex-col align-middle"
+      x-data="{visible: false, sensitivity: 0, redaction_color: '#000000', light_theme: true, remove_metadata: true, uploaded: false}"
+    >
       <div class="drawer">
-        <input id="ocultar-drawer" type="checkbox" class="drawer-toggle" />
+        <input
+          id="ocultar-drawer"
+          type="checkbox"
+          class="drawer-toggle"
+          multiple
+        />
         <div class="drawer-content flex flex-col">
           <div class="navbar border-b-gray-100 border-solid border-2 lg:px-8">
             <div class="navbar-start">
@@ -85,7 +317,7 @@
 
               <button
                 type="button"
-                class="dropdown dropdown-left dropdown-bottom btn  btn-ghost btn-circle btn-primary"
+                class="dropdown dropdown-left dropdown-bottom btn btn-ghost btn-circle btn-primary"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -108,25 +340,30 @@
                 </svg>
                 <ul
                   tabindex="0"
-                  class="dropdown-content menu bg-base-100 rounded-box z-[1] w-40 p-2 m-4 shadow"
+                  class="dropdown-content menu bg-base-100 rounded-box z-[1] w-60 p-2 m-4 shadow"
                 >
                   <li>
                     <a class="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        class="checkbox checkbox-primary"
-                      />
-                      <span>Theme</span>
+                      <label class="label cursor-pointer gap-4">
+                        <span>Light Theme</span>
+                        <input
+                          @click="light_theme = ! light_theme"
+                          type="checkbox"
+                          class="checkbox rounded-lg ml-10"
+                          checked
+                        />
+                      </label>
                     </a>
                   </li>
                   <li>
-                    <a class="flex items-center gap-2">
+                    <a class="flex items-stretch gap-2">
                       <div class="form-control">
-                        <label class="label cursor-pointer">
+                        <label class="label cursor-pointer gap-4">
                           <span class="label-text">Remove Metadata</span>
                           <input
+                            @click="remove_metadata = ! remove_metadata"
                             type="checkbox"
-                            class="toggle"
+                            class="toggle rounded-2xl"
                             checked="checked"
                           />
                         </label>
@@ -134,42 +371,46 @@
                     </a>
                   </li>
                   <li>
-                    <a class="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        class="checkbox checkbox-primary"
-                      />
+                    <a class="flex items-center gap-4">
                       <span>Redaction Color</span>
+                      <input
+                        id="redaction_color"
+                        @change="redaction_color = document.getElementById('redaction_color').innerText"
+                        type="text"
+                        class="w-10 ml-8 rounded-full"
+                        data-coloris
+                      />
                     </a>
                   </li>
-                  <li>
+                  <li @click="visible = ! visible">
                     <div class="dropdown">
-                      <a tabindex="0" class="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          class="checkbox checkbox-primary"
-                        />
-                        <span>Sensitivity</span>
-                      </a>
-                      <ul
-                        class="dropdown-content menu bg-base-100 rounded-box z-[1] w-28 p-2 m-4 shadow"
+                      <span tabindex="0" class="flex items-center gap-2 mt-3"
+                        >Sensitivity</span
                       >
-                        <li>
-                          <a class="flex items-center gap-2"
-                            ><span>Low</span></a
+                      <template x-if="visible === true">
+                        <div class="flex flex-col space-y-3">
+                          <ul
+                            id="sensitivity"
+                            class="dropdown-content dropdown-center menu bg-base-100 rounded-box z-[1] w-28 p-2 m-4 shadow"
                           >
-                        </li>
-                        <li>
-                          <a class="flex items-center gap-2"
-                            ><span>Medium</span></a
-                          >
-                        </li>
-                        <li>
-                          <a class="flex items-center gap-2"
-                            ><span>High</span></a
-                          >
-                        </li>
-                      </ul>
+                            <li @click="sensitivity = 0">
+                              <a class="flex items-center gap-2"
+                                ><span>Low</span></a
+                              >
+                            </li>
+                            <li @click="sensitivity = 1">
+                              <a class="flex items-center gap-2"
+                                ><span>Medium</span></a
+                              >
+                            </li>
+                            <li @click="sensitivity = 2">
+                              <a class="flex items-center gap-2"
+                                ><span>High</span></a
+                              >
+                            </li>
+                          </ul>
+                        </div>
+                      </template>
                     </div>
                   </li>
                 </ul>
@@ -183,43 +424,150 @@
         class="flex w-full text-center flex-col gap-1 p-8 align-middle items-center sm:p-16 md:p-20 lg:px-72"
       >
         <div
-          class="flex w-full flex-col items-center justify-center align-middle gap-2 rounded-md border border-dashed border-neutral-600 p-8 text-neutral-600 dark:border-neutral-700 dark:text-neutral-300 py-36"
+          class="flex w-full flex-col items-center justify-center align-middle gap-2 p-8 text-neutral-600 dark:border-neutral-700 dark:text-neutral-300 py-36"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-            class="size-4 w-12 h-12 opacity-75"
+          <div
+            class="flex w-full flex-col items-center justify-center align-middle gap-2 rounded-md border border-dashed border-neutral-600 p-8 text-neutral-600 dark:border-neutral-700 dark:text-neutral-300 py-36"
+            x-data="{ files: null }"
           >
-            <path
-              fill-rule="evenodd"
-              d="M4.5 13a3.5 3.5 0 0 1-1.41-6.705A3.5 3.5 0 0 1 9.72 4.124a2.5 2.5 0 0 1 3.197 3.018A3.001 3.001 0 0 1 12 13H4.5Zm.72-5.03a.75.75 0 0 0 1.06 1.06l.97-.97v2.69a.75.75 0 0 0 1.5 0V8.06l.97.97a.75.75 0 1 0 1.06-1.06L8.53 5.72a.75.75 0 0 0-1.06 0L5.22 7.97Z"
-              clip-rule="evenodd"
+            <input
+              id="fileToUpload"
+              type="file"
+              multiple
+              class="w-full outline-none absolute inset-x-2/4 z-50 opacity-0 mb-5 hidden"
+              x-on:dragover="$el.classList.add('active')"
+              x-on:dragleave="$el.classList.remove('active')"
+              x-on:drop="$el.classList.remove('active')"
+              x-on:change="files = $event.target.files;"
             />
-          </svg>
-          <div class="group font-medium flex flex-col">
-            <label
-              class="cursor-pointer font-bold text-black group-focus-within:underline dark:text-white flex flex-row"
-            >
-              <input
-                id="fileInputDragDrop"
-                type="file"
-                class="sr-only file-input-bordered"
-                aria-describedby="validFileFormats"
-                multiple
-              />
-              Browse
-              <p class="font-montserrat font-medium">
-                &nbsp;or drag and drop here
-              </p>
-            </label>
-            <small id="validFileFormats" class="font-medium"
-              >Supported files: TXT, PNG, JPG, WebP, PDF</small
-            >
+            <template x-if="files !== null && uploaded === false">
+              <div class="flex flex-col space-y-3" id="toUpload">
+                <template
+                  x-for="(_,index) in Array.from({ length: files.length })"
+                >
+                  <div class="flex flex-row items-center space-x-2">
+                    <template x-if="files[index].type.includes('text/')">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-text"
+                      >
+                        <path d="M17 6.1H3" />
+                        <path d="M21 12.1H3" />
+                        <path d="M15.1 18H3" />
+                      </svg>
+                    </template>
+                    <template x-if="files[index].type.includes('application/')">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="red"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-file-text"
+                      >
+                        <path
+                          d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
+                        />
+                        <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                        <path d="M10 9H8" />
+                        <path d="M16 13H8" />
+                        <path d="M16 17H8" />
+                      </svg>
+                    </template>
+                    <template x-if="files[index].type.includes('image/')">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="purple"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-image"
+                      >
+                        <rect
+                          width="18"
+                          height="18"
+                          x="3"
+                          y="3"
+                          rx="2"
+                          ry="2"
+                        />
+                        <circle cx="9" cy="9" r="2" />
+                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                      </svg>
+                    </template>
+                    <span
+                      class="font-medium text-gray-900"
+                      x-text="files[index].name"
+                    ></span>
+                    <span
+                      class="text-xs text-gray-500"
+                      x-text="formatFileSize(files[index].size)"
+                    >
+                    </span>
+                  </div>
+                </template>
+                <button
+                  id="uploadFile"
+                  @click="await uploadFiles(redaction_color, sensitivity, remove_metadata, files); uploaded = true"
+                  class="flex items-center mx-auto py-2 px-4 text-white text-center font-medium border border-transparent rounded-3xl outline-none bg-sky-600"
+                >
+                  Upload
+                </button>
+              </div>
+            </template>
+            <div
+              class="flex flex-col items-center space-x-2"
+              id="redactedFiles"
+            ></div>
+            <template x-if="files === null">
+              <div class="flex flex-col space-y-2 items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  class="size-4 w-12 h-12 opacity-75"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4.5 13a3.5 3.5 0 0 1-1.41-6.705A3.5 3.5 0 0 1 9.72 4.124a2.5 2.5 0 0 1 3.197 3.018A3.001 3.001 0 0 1 12 13H4.5Zm.72-5.03a.75.75 0 0 0 1.06 1.06l.97-.97v2.69a.75.75 0 0 0 1.5 0V8.06l.97.97a.75.75 0 1 0 1.06-1.06L8.53 5.72a.75.75 0 0 0-1.06 0L5.22 7.97Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <p class="font-montserrat font-medium underline">
+                  Browse or drag and drop here
+                </p>
+                <small id="validFileFormats" class="font-medium">
+                  Supported files: TXT, PNG, JPG, WebP, PDF</small
+                >
+                <button
+                  type="file"
+                  @click="document.getElementById('fileToUpload').click();"
+                  class="flex items-center mx-auto py-2 px-4 text-white text-center font-medium border border-transparent rounded-3xl outline-none bg-sky-600"
+                >
+                  Select files
+                </button>
+              </div>
+            </template>
           </div>
         </div>
       </div>
-      <footer class="footer bg-base-200 text-base-content p-10 h-full">
+      <footer class="footer bg-sky-300 text-base-content p-10 h-full">
         <aside>
           <svg
             width="50"
@@ -257,7 +605,7 @@
         </nav>
       </footer>
       <footer
-        class="flex flex-col align-middle items-center bg-base-200 text-base-content p-10 w-full"
+        class="flex flex-col align-middle items-center bg-sky-300 text-base-content p-10 w-full"
       >
         <a class="link link-hover flex flex-row"
           >Made with
@@ -270,6 +618,6 @@
         >
       </footer>
     </div>
-    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/src/main.ts" defer></script>
   </body>
 </html>
