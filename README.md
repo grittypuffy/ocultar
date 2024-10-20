@@ -1,6 +1,6 @@
 # Ocultar
 
-<a href="https://ocultar.vercel.app"><img src="./assets/logo-full.svg" style="background-color: #ffffff; padding: 15px" alt="Ocultar Logo"></a>
+<a href="https://ocultar.vercel.app"><img src="./assets/logo-full.png" style="background-color: #ffffff; padding: 15px" alt="Ocultar Logo"></a>
 
 Ocultar is an offline-first software for redaction of personal information and removal of metadata from digital files for enhanced privacy and prevent unintended disclosure of sensitive information.
 
