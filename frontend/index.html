@@ -109,7 +109,44 @@
                     d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                   />
                 </svg>
+
               </button>
+              <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-40 p-2 m-4 shadow">
+            <li>
+              <a class="flex items-center gap-2">
+                <input type="checkbox" class="checkbox checkbox-primary" />
+                <span>Theme</span>
+              </a>
+            </li>
+            <li>
+              <a class="flex items-center gap-2">
+                <input type="checkbox" class="checkbox checkbox-primary" />
+                <span>Remove Checkbox</span>
+              </a>
+            </li>
+            <li>
+              <a class="flex items-center gap-2">
+                <input type="checkbox" class="checkbox checkbox-primary" />
+                <span>Redaction Color</span>
+              </a>
+            </li>
+            <li>
+              <div class="dropdown">
+                <a tabindex="0" class="flex items-center gap-2">
+                  <input type="checkbox" class="checkbox checkbox-primary" />
+                  <span>Sensitivity</span>
+                </a>
+                <ul
+                  class="dropdown-content menu bg-base-100 rounded-box z-[1] w-28 p-2 m-4 shadow"
+                >
+                  <li><a class="flex items-center gap-2"><span>Low</span></a></li>
+                  <li><a class="flex items-center gap-2"><span>Medium</span></a></li>
+                  <li><a class="flex items-center gap-2"><span>High</span></a></li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+
             </div>
           </div>
         </div>
@@ -194,3 +231,11 @@
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
+
+
+
+
+
+
+
+
